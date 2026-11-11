@@ -1,0 +1,50 @@
+name: build-web-engine
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/web-engine.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Clone Cocos engine 3.8.2
+        run: |
+          git clone --depth 1 --branch 3.8.2 https://github.com/cocos/cocos-engine engine
+          TAG=$(python3 -c "import json;print(json.load(open('engine/native/external-config.json'))['from']['checkout'])")
+          git clone --depth 1 --branch "$TAG" https://github.com/cocos-creator/engine-native-external engine/native/external
+          ls engine/native/external/emscripten || true
+      - name: Install deps
+        run: |
+          cd engine
+          npm install --ignore-scripts > ../npm.log 2>&1 || { tail -40 ../npm.log; exit 1; }
+          npm run build:debug-infos
+      - name: Build engine for web
+        run: |
+          mkdir -p out/cocos-js
+          cd engine
+          node node_modules/@cocos/build-engine/dist/cli --engine="$PWD" --module=system --build-mode=BUILD --platform=HTML5 \
+            --out="$GITHUB_WORKSPACE/out/cocos-js" --compress \
+            base gfx-webgl gfx-webgl2 3d animation skeletal-animation 2d ui particle audio video webview tween spine marionette profiler \
+            > ../build.log 2>&1 || { tail -80 ../build.log; exit 1; }
+          tail -20 ../build.log
+          cp -r templates/web-mobile "$GITHUB_WORKSPACE/out/tpl-web-mobile"
+          cp -r templates/launcher "$GITHUB_WORKSPACE/out/tpl-launcher"
+          ls -laR "$GITHUB_WORKSPACE/out" | head -80
+      - uses: actions/checkout@v4
+        with:
+          path: repo
+      - name: Publish to branch
+        run: |
+          cd repo
+          git checkout --orphan web-engine-out
+          git rm -rfq .
+          cp -r ../out ./web-engine
+          git add -A
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "web engine build"
+          git push -f origin web-engine-out
