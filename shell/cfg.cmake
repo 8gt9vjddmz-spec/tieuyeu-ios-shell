@@ -9,3 +9,5 @@ set(CC_EXECUTABLE_NAME "")
 set(CUSTOM_COPY_RESOURCE_HOOK OFF)
 set(USE_V8_DEBUGGER OFF)
 set(USE_WEBSOCKET_SERVER OFF)
+# Xcode 16 / clang 17: engine 3.8.2 dung cu phap cu trong EventTarget.h
+add_compile_options(-Wno-missing-template-arg-list-after-template-kw)
