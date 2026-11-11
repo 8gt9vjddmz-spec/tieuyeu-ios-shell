@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 16
       - name: Clone Cocos engine 3.8.2
         run: |
           git clone --depth 1 --branch 3.8.2 https://github.com/cocos/cocos-engine engine
@@ -22,26 +22,24 @@ jobs:
       - name: Install deps
         run: |
           cd engine
-          npm install --ignore-scripts > ../npm.log 2>&1 || { tail -40 ../npm.log; exit 1; }
+          node -v && npm -v
+          check() { node -e "require('./node_modules/@cocos/build-engine/dist/index.js')" > ../check.log 2>&1; }
+          npm ci --ignore-scripts > ../npm.log 2>&1 || true
+          if ! check; then
+            echo "npm ci tree unusable:"; head -5 ../check.log
+            rm -rf node_modules package-lock.json
+            npm install --ignore-scripts --legacy-peer-deps > ../npm.log 2>&1 || { tail -40 ../npm.log; exit 1; }
+            check || { cat ../check.log | head -30; exit 1; }
+          fi
           npm run build:debug-infos
       - name: Build engine for web
         run: |
-          mkdir -p out/cocos-js extra
-          (cd extra && npm init -y > /dev/null)
-          export NODE_PATH="$GITHUB_WORKSPACE/extra/node_modules"
+          mkdir -p out/cocos-js
           cd engine
-          ok=0
-          for i in $(seq 1 40); do
-            if node node_modules/@cocos/build-engine/dist/cli --engine="$PWD" --module=system --build-mode=BUILD --platform=HTML5 \
-              --out="$GITHUB_WORKSPACE/out/cocos-js" --compress \
-              base gfx-webgl gfx-webgl2 3d animation skeletal-animation 2d ui particle audio video webview tween spine marionette profiler \
-              > ../build.log 2>&1; then ok=1; break; fi
-            m=$(grep -m1 -oE "Cannot find module '[^']+'" ../build.log | sed -E "s/Cannot find module '([^']+)'/\1/")
-            case "$m" in ""|.*|/*) break;; esac
-            echo "missing module: $m"
-            (cd "$GITHUB_WORKSPACE/extra" && npm install --ignore-scripts "$m" > /dev/null 2>&1) || break
-          done
-          if [ "$ok" != 1 ]; then tail -60 ../build.log; exit 1; fi
+          node node_modules/@cocos/build-engine/dist/cli --engine="$PWD" --module=system --build-mode=BUILD --platform=HTML5 \
+            --out="$GITHUB_WORKSPACE/out/cocos-js" --compress \
+            base gfx-webgl gfx-webgl2 3d animation skeletal-animation 2d ui particle audio video webview tween spine marionette profiler \
+            > ../build.log 2>&1 || { tail -60 ../build.log; exit 1; }
           tail -20 ../build.log
           cp -r templates/web-mobile "$GITHUB_WORKSPACE/out/tpl-web-mobile"
           cp -r templates/launcher "$GITHUB_WORKSPACE/out/tpl-launcher"
