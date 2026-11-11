@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 18
       - name: Clone Cocos engine 3.8.2
         run: |
           git clone --depth 1 --branch 3.8.2 https://github.com/cocos/cocos-engine engine
@@ -23,7 +23,7 @@ jobs:
         run: |
           cd engine
           node -v && npm -v
-          check() { node -e "require('./node_modules/@cocos/build-engine/dist/index.js')" > ../check.log 2>&1; }
+          check() { node node_modules/@cocos/build-engine/dist/cli --help > ../check.log 2>&1; }
           npm ci --ignore-scripts > ../npm.log 2>&1 || true
           if ! check; then
             echo "npm ci tree unusable:"; head -5 ../check.log
