@@ -21,6 +21,12 @@ jobs:
           cp -r templates/ios ../out/tpl-ios
           cp -r templates/common ../out/tpl-common
           cp native/external-config.json ../out/ || true
+          mkdir -p ../out/scripts && cp scripts/build-h5-*.js scripts/build-adapter.js scripts/fetch-ral.js ../out/scripts/ || true
+          cp -r scripts/build-engine ../out/scripts/build-engine || true
+          cp cc.config.json ../out/ || true
+          ls pal > ../out/pal-ls.txt || true
+          ls platforms 2>/dev/null > ../out/platforms-ls.txt || true
+          find . -maxdepth 3 -name 'index*.html' -o -maxdepth 3 -name '*.ejs' | head -50 > ../out/html-ls.txt || true
           cp native/CMakeLists.txt ../out/native-CMakeLists.txt
           cp -r native/cmake ../out/native-cmake
           cp -r templates/cmake ../out/tpl-cmake
