@@ -23,6 +23,10 @@ jobs:
           cp native/external-config.json ../out/ || true
           cp native/CMakeLists.txt ../out/native-CMakeLists.txt
           cp -r native/cmake ../out/native-cmake
+          cp -r templates/cmake ../out/tpl-cmake
+          grep -rn 'IOS\b' cocos/../pal 2>/dev/null | head -0 || true
+          grep -rnE '\b(ANDROID|IOS)\b' --include=*.ts pal cocos exports 2>/dev/null | grep -v '^.*//' | head -150 > ../out/platform-consts.txt || true
+          sed -n 1,400p native/CMakeLists.txt > /dev/null
           ls -la native > ../out/native-ls.txt
           ls -R templates | head -400 > ../out/templates-ls.txt
           cat package.json > ../out/engine-package.json
