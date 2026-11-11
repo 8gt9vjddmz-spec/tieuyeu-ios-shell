@@ -23,16 +23,25 @@ jobs:
         run: |
           cd engine
           npm install --ignore-scripts > ../npm.log 2>&1 || { tail -40 ../npm.log; exit 1; }
-          npm install --ignore-scripts --no-save universalify jsonfile graceful-fs at-least-node >> ../npm.log 2>&1 || true
           npm run build:debug-infos
       - name: Build engine for web
         run: |
-          mkdir -p out/cocos-js
+          mkdir -p out/cocos-js extra
+          (cd extra && npm init -y > /dev/null)
+          export NODE_PATH="$GITHUB_WORKSPACE/extra/node_modules"
           cd engine
-          node node_modules/@cocos/build-engine/dist/cli --engine="$PWD" --module=system --build-mode=BUILD --platform=HTML5 \
-            --out="$GITHUB_WORKSPACE/out/cocos-js" --compress \
-            base gfx-webgl gfx-webgl2 3d animation skeletal-animation 2d ui particle audio video webview tween spine marionette profiler \
-            > ../build.log 2>&1 || { grep -n "Cannot find module" ../build.log | head; tail -60 ../build.log; exit 1; }
+          ok=0
+          for i in $(seq 1 40); do
+            if node node_modules/@cocos/build-engine/dist/cli --engine="$PWD" --module=system --build-mode=BUILD --platform=HTML5 \
+              --out="$GITHUB_WORKSPACE/out/cocos-js" --compress \
+              base gfx-webgl gfx-webgl2 3d animation skeletal-animation 2d ui particle audio video webview tween spine marionette profiler \
+              > ../build.log 2>&1; then ok=1; break; fi
+            m=$(grep -m1 -oE "Cannot find module '[^']+'" ../build.log | sed -E "s/Cannot find module '([^']+)'/\1/")
+            case "$m" in ""|.*|/*) break;; esac
+            echo "missing module: $m"
+            (cd "$GITHUB_WORKSPACE/extra" && npm install --ignore-scripts "$m" > /dev/null 2>&1) || break
+          done
+          if [ "$ok" != 1 ]; then tail -60 ../build.log; exit 1; fi
           tail -20 ../build.log
           cp -r templates/web-mobile "$GITHUB_WORKSPACE/out/tpl-web-mobile"
           cp -r templates/launcher "$GITHUB_WORKSPACE/out/tpl-launcher"
