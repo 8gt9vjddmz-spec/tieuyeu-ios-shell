@@ -1,0 +1,49 @@
+pal/screen-adapter/minigame/screen-adapter.ts:43:        if (systemInfo.os === OS.IOS && !minigame.isDevTool) {
+pal/system-info/enum-type/browser-type.ts:40:    ANDROID = 'androidbrowser',
+pal/system-info/enum-type/operating-system.ts:35:    IOS = 'iOS',
+pal/system-info/enum-type/operating-system.ts:40:    ANDROID = 'Android',
+pal/system-info/enum-type/platform.ts:34:    ANDROID = 'ANDROID',
+pal/system-info/enum-type/platform.ts:35:    IOS = 'IOS',
+pal/system-info/native/system-info.ts:54:    3: Platform.ANDROID,
+pal/system-info/native/system-info.ts:56:    4: Platform.IOS,
+pal/system-info/native/system-info.ts:58:    5: Platform.IOS,
+pal/system-info/native/system-info.ts:92:        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS || this.platform === Platform.OPENHARMONY;
+pal/system-info/web/system-info.ts:116:            osName = OS.IOS;
+pal/system-info/web/system-info.ts:122:            osName = OS.ANDROID;
+pal/system-info/web/system-info.ts:142:            browserType = BrowserType.ANDROID;
+pal/system-info/web/system-info.ts:144:            browserType = BrowserType.ANDROID;
+pal/system-info/web/system-info.ts:205:            const isSafari_15_4 = (this.os === OS.IOS || this.os === OS.OSX) && /(OS 15_4)|(Version\/15.4)/.test(window.navigator.userAgent);
+pal/system-info/minigame/system-info.ts:104:            this.os = OS.ANDROID;
+pal/system-info/minigame/system-info.ts:106:            this.os = OS.IOS;
+pal/system-info/minigame/system-info.ts:174:            if (WECHAT && this.os === OS.ANDROID) {
+pal/audio/web/player-dom.ts:140:            if (systemInfo.os === OS.IOS) {
+pal/input/native/accelerometer-input.ts:66:        if (systemInfo.os === OS.ANDROID || systemInfo.os === OS.OHOS || systemInfo.os === OS.OPENHARMONY) {
+pal/input/web/accelerometer-input.ts:111:        if (systemInfo.os === OS.ANDROID
+cocos/core/platform/sys.ts:329:                    this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
+cocos/core/platform/sys.ts:332:                    this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
+cocos/core/platform/deprecated.ts:59:    ['UNKNOWN', 'IOS', 'ANDROID', 'WINDOWS', 'LINUX', 'OSX'].map((item) => ({
+cocos/core/platform/deprecated.ts:68:    ['UNKNOWN', 'WECHAT', 'ANDROID', 'IE', 'EDGE', 'QQ', 'MOBILE_QQ',
+cocos/core/platform/deprecated.ts:88:    ['UNKNOWN', 'EDITOR_PAGE', 'EDITOR_CORE', 'MOBILE_BROWSER', 'DESKTOP_BROWSER', 'WIN32', 'MACOS', 'IOS', 'ANDROID', 'OHOS',
+cocos/core/platform/deprecated.ts:100:        newName: 'IOS',
+cocos/core/platform/deprecated.ts:106:        newName: 'IOS',
+cocos/ui/editbox/edit-box-impl.ts:237:        if (sys.os !== OS.ANDROID && sys.os !== OS.OHOS) {
+cocos/ui/editbox/edit-box-impl.ts:246:        if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
+cocos/ui/editbox/edit-box-impl.ts:276:            if (sys.browserType === BrowserType.WECHAT && sys.os === OS.IOS) {
+cocos/gfx/webgl/webgl-swapchain.ts:130:        if (systemInfo.os !== OS.IOS || systemInfo.osMainVersion !== 14 || !systemInfo.isBrowser) {
+cocos/gfx/webgl/webgl-swapchain.ts:135:        if (systemInfo.os !== OS.ANDROID && systemInfo.os !== OS.IOS) {
+cocos/gfx/webgl/webgl-swapchain.ts:145:        if (BYTEDANCE && systemInfo.os === OS.IOS) {
+cocos/gfx/webgl/webgl-swapchain.ts:157:        if ((systemInfo.os === OS.IOS && systemInfo.osMainVersion <= 10)
+cocos/gfx/webgl/webgl-swapchain.ts:158:            || ((WECHAT || WECHAT_MINI_PROGRAM) && systemInfo.os === OS.ANDROID)) {
+cocos/gfx/webgl/webgl-swapchain.ts:180:        if ((TAOBAO || TAOBAO_MINIGAME) && systemInfo.os === OS.ANDROID) {
+cocos/gfx/webgl2/webgl2-device.ts:156:        if (systemInfo.os === OS.IOS) {
+cocos/gfx/webgl2/webgl2-swapchain.ts:112:        if (systemInfo.os !== OS.ANDROID && systemInfo.os !== OS.IOS) {
+cocos/2d/assembler/label/text-processing.ts:24:import { ANDROID, JSB } from 'internal:constants';
+cocos/2d/assembler/label/text-processing.ts:167:        if (ANDROID) {
+cocos/native-binding/impl.ts:34:            if (globalThis.JavascriptJavaBridge && (sys.os === sys.OS.ANDROID || sys.os === sys.OS.OHOS)) {
+cocos/native-binding/impl.ts:36:            } else if (globalThis.JavaScriptObjCBridge && (sys.os === sys.OS.IOS || sys.os === sys.OS.OSX)) {
+cocos/native-binding/impl.ts:52:            if (globalThis.ScriptNativeBridge && sys.os === sys.OS.ANDROID || sys.os === sys.OS.IOS || sys.os === sys.OS.OSX || sys.os === sys.OS.OHOS) {
+cocos/native-binding/impl.ts:112:            if (globalThis.ScriptNativeBridge && sys.os === sys.OS.ANDROID || sys.os === sys.OS.IOS || sys.os === sys.OS.OSX || sys.os === sys.OS.OHOS) {
+cocos/rendering/custom/web-pipeline.ts:1974:        str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
+cocos/rendering/render-pipeline.ts:731:        str += `#define CC_PLATFORM_ANDROID_AND_WEBGL ${systemInfo.os === OS.ANDROID && systemInfo.isBrowser ? 1 : 0}\n`;
+cocos/video/video-player-impl-web.ts:180:        if (sys.os === OS.IOS && sys.isBrowser) {
+cocos/asset/assets/texture-cube.ts:245:        if (((WECHAT || WECHAT_MINI_PROGRAM) && sys.os === OS.IOS) || VIVO || OPPO) {

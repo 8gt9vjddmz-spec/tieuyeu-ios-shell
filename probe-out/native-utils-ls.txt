@@ -1,0 +1,16 @@
+CMakeLists.header.txt
+clear-platform.js
+compile_file.js
+download-deps.js
+fix-tidy-format.sh
+generate_compile_commands_android.sh
+generate_compile_commands_android_windows.sh
+generate_compile_commands_ios.sh
+generate_compile_commands_linux.sh
+generate_compile_commands_mac.sh
+generate_compile_commands_nx.sh
+generate_compile_commands_ohos.sh
+generate_compile_commands_ohos_proj.sh
+generate_compile_commands_windows.sh
+git.js
+update-external.js
