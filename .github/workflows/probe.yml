@@ -1,0 +1,37 @@
+name: probe
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: tags
+        run: git ls-remote --tags https://github.com/cocos/cocos-engine | grep -E '3\.8\.2' || true
+      - name: clone engine
+        run: |
+          git clone --depth 1 --branch 3.8.2 https://github.com/cocos/cocos-engine engine || git clone --depth 1 --branch v3.8.2 https://github.com/cocos/cocos-engine engine
+      - name: collect
+        run: |
+          mkdir out
+          cd engine
+          cp -r templates/ios ../out/tpl-ios
+          cp -r templates/common ../out/tpl-common
+          cp native/external-config.json ../out/ || true
+          cp native/CMakeLists.txt ../out/native-CMakeLists.txt
+          cp -r native/cmake ../out/native-cmake
+          ls -la native > ../out/native-ls.txt
+          ls -R templates | head -400 > ../out/templates-ls.txt
+          cat package.json > ../out/engine-package.json
+          ls native/utils > ../out/native-utils-ls.txt || true
+          cp native/package.json ../out/native-package.json || true
+          cp native/gulpfile.js ../out/ || true
+          cp -r native/utils ../out/native-utils || true
+          ls scripts > ../out/scripts-ls.txt || true
+          cp -r native/cocos/platform/apple/JsbBridge* ../out/ 2>/dev/null || true
+          cp native/cocos/bindings/manual/JavaScriptObjCBridge.mm ../out/ 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: probe
+          path: out
