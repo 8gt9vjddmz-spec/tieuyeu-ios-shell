@@ -23,6 +23,7 @@ jobs:
         run: |
           cd engine
           npm install --ignore-scripts > ../npm.log 2>&1 || { tail -40 ../npm.log; exit 1; }
+          npm install --ignore-scripts --no-save universalify jsonfile graceful-fs at-least-node >> ../npm.log 2>&1 || true
           npm run build:debug-infos
       - name: Build engine for web
         run: |
@@ -31,7 +32,7 @@ jobs:
           node node_modules/@cocos/build-engine/dist/cli --engine="$PWD" --module=system --build-mode=BUILD --platform=HTML5 \
             --out="$GITHUB_WORKSPACE/out/cocos-js" --compress \
             base gfx-webgl gfx-webgl2 3d animation skeletal-animation 2d ui particle audio video webview tween spine marionette profiler \
-            > ../build.log 2>&1 || { tail -80 ../build.log; exit 1; }
+            > ../build.log 2>&1 || { grep -n "Cannot find module" ../build.log | head; tail -60 ../build.log; exit 1; }
           tail -20 ../build.log
           cp -r templates/web-mobile "$GITHUB_WORKSPACE/out/tpl-web-mobile"
           cp -r templates/launcher "$GITHUB_WORKSPACE/out/tpl-launcher"
