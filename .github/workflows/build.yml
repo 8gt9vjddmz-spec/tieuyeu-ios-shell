@@ -1,0 +1,68 @@
+name: build-ios-shell
+on:
+  workflow_dispatch:
+  push:
+    paths: ['shell/**', '.github/workflows/build.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tool versions
+        run: xcodebuild -version && cmake --version | head -1 && node --version
+      - name: Clone Cocos engine 3.8.2
+        run: |
+          git clone --depth 1 --branch 3.8.2 https://github.com/cocos/cocos-engine engine
+          TAG=$(python3 -c "import json;print(json.load(open('engine/native/external-config.json'))['from']['checkout'])")
+          echo "external tag: $TAG"
+          git clone --depth 1 --branch "$TAG" https://github.com/cocos-creator/engine-native-external engine/native/external
+      - name: Prepare project
+        run: |
+          mkdir -p proj/native/engine build/ios/proj
+          cp -R engine/templates/ios proj/native/engine/ios
+          cp -R engine/templates/common proj/native/engine/common
+          cp shell/overlay/* proj/native/engine/ios/
+          python3 shell/patch_plist.py proj/native/engine/ios/Info.plist
+          cp shell/cfg.cmake build/ios/proj/cfg.cmake
+          cp -R shell/data build/ios/data
+      - name: CMake generate
+        run: |
+          cmake -S proj/native/engine/ios -B build/ios/proj -GXcode \
+            -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
+            -DRES_DIR="$PWD/build/ios" -DCOCOS_X_PATH="$PWD/engine/native" \
+            -DAPP_NAME=TieuYeu -DMACOSX_BUNDLE_GUI_IDENTIFIER=com.loulx.tieuyeu \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO > cmake.log 2>&1 || { tail -80 cmake.log; exit 1; }
+          tail -15 cmake.log
+      - name: Build
+        run: |
+          cd build/ios/proj
+          if ! xcodebuild -project TieuYeu.xcodeproj -target TieuYeu-mobile -configuration Release -sdk iphoneos \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build > "$GITHUB_WORKSPACE/build.log" 2>&1; then
+            grep -nE "error:|fatal error|Undefined symbols|ld: " "$GITHUB_WORKSPACE/build.log" | head -80
+            echo ----
+            tail -60 "$GITHUB_WORKSPACE/build.log"
+            exit 1
+          fi
+          tail -5 "$GITHUB_WORKSPACE/build.log"
+      - name: Package IPA
+        run: |
+          APP=$(find build/ios/proj -maxdepth 4 -name "*.app" -path "*Release-iphoneos*" | head -1)
+          echo "app: $APP"
+          ls -la "$APP" | head -40
+          du -sh "$APP"
+          rm -f "$APP/PLACEHOLDER.txt"
+          mkdir Payload
+          cp -R "$APP" Payload/TieuYeu.app
+          zip -qry TieuYeu-shell.ipa Payload
+          ls -la TieuYeu-shell.ipa
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=shell-${{ github.run_number }}
+          gh release create "$TAG" TieuYeu-shell.ipa --title "iOS shell $TAG" --notes "Vo iOS Cocos 3.8.2 (chua ky, chua co du lieu game)."
